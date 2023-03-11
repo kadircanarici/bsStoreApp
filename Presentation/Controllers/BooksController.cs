@@ -1,14 +1,17 @@
 ﻿using Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Repositories.Contracts;
-using Repositories.EFCore;
 using Services.Contracts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace WebApi.Controllers
+namespace Presentation.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/books")]
     public class BooksController : ControllerBase
     {
 
@@ -31,12 +34,12 @@ namespace WebApi.Controllers
             catch (Exception ex)
             {
 
-                throw new Exception(ex.Message) ;
-            } 
+                throw new Exception(ex.Message);
+            }
         }
 
         [HttpGet("{id:int}")]
-        public IActionResult GetOneBook([FromRoute(Name="id")] int id) 
+        public IActionResult GetOneBook([FromRoute(Name = "id")] int id)
         {
             try
             {
@@ -79,7 +82,7 @@ namespace WebApi.Controllers
                 if (book is null)
                     return BadRequest(); // 400
 
-                _manager.BookService.UpdateOneBook(id, book,true);
+                _manager.BookService.UpdateOneBook(id, book, true);
 
                 return NoContent(); //204
             }
@@ -91,11 +94,11 @@ namespace WebApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult DeleteOneBook([FromRoute(Name ="id")] int id)
+        public IActionResult DeleteOneBook([FromRoute(Name = "id")] int id)
         {
             try
             {
-                _manager.BookService.DeleteOneBook(id,false);
+                _manager.BookService.DeleteOneBook(id, false);
                 return NoContent(); //204
             }
             catch (Exception ex)
@@ -106,7 +109,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPatch("{id:int}")]
-        public IActionResult PartiallyUpdateOneBook([FromRoute(Name ="id")] int id, [FromBody] JsonPatchDocument<Book> bookPatch)
+        public IActionResult PartiallyUpdateOneBook([FromRoute(Name = "id")] int id, [FromBody] JsonPatchDocument<Book> bookPatch)
         {
             try
             {
@@ -116,7 +119,7 @@ namespace WebApi.Controllers
                     return NotFound(); //404
 
                 bookPatch.ApplyTo(entity);
-                _manager.BookService.UpdateOneBook(id,entity,true);
+                _manager.BookService.UpdateOneBook(id, entity, true);
 
                 return NoContent(); //204
             }
@@ -129,4 +132,3 @@ namespace WebApi.Controllers
 
     }
 }
-
