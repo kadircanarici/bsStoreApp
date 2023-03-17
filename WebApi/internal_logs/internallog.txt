@@ -85,3 +85,8 @@
 2023-03-17 18:59:16.6358 Info Message Template Auto Format enabled
 2023-03-17 18:59:17.0082 Info Registered target NLog.Targets.FileTarget(Name=logfile)
 2023-03-17 18:59:17.0885 Info Validating config: TargetNames=logfile, ConfigItems=12, FilePath=C:\Users\Kadir\source\repos\bsStoreApp\WebApi\nlog.config
+2023-03-17 19:04:21.0209 Info AppDomain Shutting down. LogFactory closing...
+2023-03-17 19:04:21.0695 Info LogFactory has been closed.
+2023-03-17 22:42:24.4298 Info Message Template Auto Format enabled
+2023-03-17 22:42:25.1147 Info Registered target NLog.Targets.FileTarget(Name=logfile)
+2023-03-17 22:42:25.2366 Info Validating config: TargetNames=logfile, ConfigItems=12, FilePath=C:\Users\Kadir\source\repos\bsStoreApp\WebApi\nlog.config
