@@ -3,17 +3,21 @@ using AutoMapper;
 using Entities.DataTransferObjects;
 using Entities.Models;
 using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Presentation.ActionFilters;
 using Presentation.Controllers;
 using Repositories.Contracts;
 using Repositories.EFCore;
 using Services;
 using Services.Contracts;
+using System.Text;
 
 namespace WebApi.Extensions
 {
@@ -107,12 +111,12 @@ namespace WebApi.Extensions
         public static void ConfigureResponseCaching(this IServiceCollection services) => services.AddResponseCaching();
 
         public static void ConfigureHttpCacheHeaders(this IServiceCollection services) =>
-            services.AddHttpCacheHeaders(expirationOpt=>
+            services.AddHttpCacheHeaders(expirationOpt =>
             {
                 expirationOpt.MaxAge = 90;
                 expirationOpt.CacheLocation = CacheLocation.Public;
             },
-                validationOpt=>
+                validationOpt =>
                 {
                     validationOpt.MustRevalidate = false;
                 });
@@ -124,7 +128,7 @@ namespace WebApi.Extensions
                 new RateLimitRule()
                 {
                     Endpoint = "*",
-                    Limit = 3,
+                    Limit = 60,
                     Period= "1m"
                 }
             };
@@ -154,6 +158,76 @@ namespace WebApi.Extensions
             })
                 .AddEntityFrameworkStores<RepositoryContext>()
                 .AddDefaultTokenProviders();
+        }
+
+        public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            var secretKey = jwtSettings["secretKey"];
+
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtSettings["validIssuer"],
+                ValidAudience = jwtSettings["validAudience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+            }
+            );
+
+        }
+
+        public static void ConfigureSwagger(this IServiceCollection services)
+        {
+            services.AddSwaggerGen(s=>
+            {
+                s.SwaggerDoc("v1",
+                    new OpenApiInfo 
+                    {
+                        Title="BTK Akademi",
+                        Version="v1",
+                        Description="BTK Akademi ASP.NET Core Web API",
+                        TermsOfService = new Uri( "https://btkakademi.gov.tr"),
+                        Contact = new OpenApiContact
+                        {
+                            Name="Kadircan Arıcı",
+                            Email="kadircanarc@gmail.com",
+                            Url = new Uri("https://github.com/kadircanarici")
+                        }
+                    });
+                s.SwaggerDoc("v2",new OpenApiInfo { Title="BTK Akademi",Version="v2"});
+
+                s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Place to add JWT with Bearer",
+                    Name = "Authorization",
+                    Type= SecuritySchemeType.ApiKey,
+                    Scheme="Bearer"
+                });
+
+                s.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {new OpenApiSecurityScheme
+                    {
+                        Reference =new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id="Bearer"
+                        },
+                        Name="Bearer"
+                    },
+                    new List<string>()
+                    }
+                });
+            });
         }
     }
 }
