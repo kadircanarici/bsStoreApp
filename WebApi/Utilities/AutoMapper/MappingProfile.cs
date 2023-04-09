@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Entities.DataTransferObjects;
+using Entities.DataTransferObjects.Category;
 using Entities.Models;
 
 namespace WebApi.Utilities.AutoMapper
@@ -12,6 +13,10 @@ namespace WebApi.Utilities.AutoMapper
             CreateMap<Book, BookDto>();
             CreateMap<BookDtoForInsertion, Book>();
             CreateMap<UserForRegistrationDto, User>();
+            CreateMap<CategoryDtoForUpdate, Category>().ReverseMap();
+            CreateMap<Category, CategoryDto>();
+            CreateMap<CategoryDtoForInsertion, Category>();
+            
         }
     }
 }

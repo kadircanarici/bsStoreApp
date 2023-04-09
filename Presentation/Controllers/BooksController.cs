@@ -24,7 +24,7 @@ namespace Presentation.Controllers
         {
             _manager = manager;
         }
-        [Authorize]
+       
         [Authorize]
         [HttpHead]
         [HttpGet(Name ="GetAllBooksAsync")]
@@ -47,6 +47,16 @@ namespace Presentation.Controllers
             return result.linkResponse.HasLinks ? 
                 Ok(result.linkResponse.LinkedEntities):
                 Ok(result.linkResponse.ShapedEntities);
+        }
+
+
+        [Authorize]
+        [HttpGet("details")]
+        public async Task<IActionResult> GetallBooksWithDetailsAsync()
+        {
+            return Ok(await _manager
+                .BookService
+                .GetAllBooksWithDetailsAsync(false));
         }
 
         [Authorize]
